@@ -24,7 +24,7 @@ function QuestionsSection({mockInterviewQuestion, activeQuestionIndex, userAnswe
             {mockInterviewQuestion&&mockInterviewQuestion.map((question, index)=>(
                  <h2 key={index} className={`p-2 bg-secondary rounded-full
                  text-xs md:text-sm text-center cursor-pointer
-                ${activeQuestionIndex === index ? 'bg-black text-white' : ''}`}>Question #{index + 1}</h2>
+                ${activeQuestionIndex === index ? 'bg-purple-500 text-black' : ''}`}>Question #{index + 1}</h2>
             ))}
   
         </div>
@@ -44,10 +44,10 @@ function QuestionsSection({mockInterviewQuestion, activeQuestionIndex, userAnswe
                 {showAnswer ? 'Hide User Answer':'Show User Answer'}
             </Button>
         )}
-         {showAnswer && userAnswer && (
+         {showAnswer && userAnswer[activeQuestionIndex] && (
                 <div className='mt-5 p-4 bg-gray-100 rounded-lg max-h-48 overflow-y-auto'>
                     <h3>Your Answer:</h3>
-                    <p>{userAnswer}</p> {/* This will display the full answer */}
+                    <p>{userAnswer[activeQuestionIndex]}</p> {/* This will display the full answer */}
                 </div>
             )}
         
