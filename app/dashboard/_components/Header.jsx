@@ -13,7 +13,7 @@ function header() {
 
   return (
     <div className='flex p-4 items-center justify-between bg-secondary shadow-small'>
-        <Image src={'logo.svg'} width={160} height={100} alt='logo'/>
+        <Image src={'logo.svg'} width={160} height={100} alt='logo' priority/>
         <ul className = 'hidden md:flex gap-6'>
             <li className={`hover:text-primary hover:font-bold transition-all cursor-pointer
                 ${path=='/dashboard'&&'text-primary font-bold'}
