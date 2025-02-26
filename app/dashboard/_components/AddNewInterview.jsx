@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { v4 as uuidv4 } from 'uuid';
 
@@ -24,6 +24,7 @@ import moment from 'moment';
 import { useRouter } from 'next/navigation';
   
 function AddNewInterview() {
+    const [isClient, setIsClient] = useState(false)
     const[openDialogue, setOpenDialogue] = useState(false)
     const [jobPosition, setJobPosition] = useState();
     const [jobDes, setJobDes] = useState();
@@ -32,6 +33,10 @@ function AddNewInterview() {
     const [JsonResponse, setJsonResponse] = useState([])
     const router=useRouter();
     const {user} = useUser();
+
+    useEffect(()=>{
+        setIsClient(true)
+    },[])
 
     const onSubmit=async(e)=>{
         setLoading(true)
@@ -60,6 +65,9 @@ function AddNewInterview() {
 
         setLoading(false);
     }
+    if(!isClient){
+        return null;
+    }
   return (
     <div>
         <div className='p-10 border rounded-lg bg-secondary hover:scale-105 hover:shadow-md cursor-pointer transition-all
@@ -70,7 +78,7 @@ function AddNewInterview() {
             <h2 className=' text-lg text-center'>+ Add New</h2>
             </div>
         </div>
-        <Dialog open={openDialogue}>
+        <Dialog open={openDialogue} onOpenChange={(open) => setOpenDialogue(open)}>
         
         <DialogContent className='max-w-2xl'>
             <DialogHeader>

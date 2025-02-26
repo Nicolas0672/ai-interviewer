@@ -4,6 +4,7 @@ import { db } from '@/utils/db';
 import { chatSession } from '@/utils/GeminiAIModel';
 import { UserAnswer } from '@/utils/schema';
 import { useUser } from '@clerk/nextjs';
+import { and, eq } from 'drizzle-orm';
 import { Mic } from 'lucide-react';
 import moment from 'moment';
 import Image from 'next/image'
@@ -64,7 +65,7 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
       const saveUserAnswer = async () =>{
        
         if(isRecording){
-          console.log("Current Answer Length:", userAnswer[activeQuestionIndex]?.length);
+          
           stopSpeechToText()
           /*if(userAnswer[activeQuestionIndex]?.length < 10){
             setLoading(false)
@@ -78,8 +79,19 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
         }
       }
 
+      const resetRecording = () =>{
+        setUserAnswer(prevAnswers =>{
+          const newAns = [...prevAnswers]
+          newAns[activeQuestionIndex] = ""
+          return newAns
+        })
+        setResults([])
+        prevAnsRef.current=""
+      }
+
       const UpdateUserAnswerInDb= async () =>{
         setLoading(true)
+        
         const feedbackPrompt = `
           You are a professional interview coach. Analyze the following answer and provide feedback.
 
@@ -102,9 +114,37 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
         const result = await chatSession.sendMessage(feedbackPrompt)
 
         const mockJsonResp=(result.response.text()).replace('```json', '').replace('```', '')
-        console.log(mockJsonResp)
+        
+        const existingAnswer = await db.select().from(UserAnswer).where(and(
+          eq(UserAnswer.mockIdRef, interviewData?.mockId),
+          eq(UserAnswer.question, mockInterviewQuestion[activeQuestionIndex]?.question),
+          eq(UserAnswer.userEmail, user?.primaryEmailAddress.emailAddress)
+        ))
+        .limit(1)
+
+        const existingRecord = existingAnswer[0]
+
         const JsonFeedBackResp=JSON.parse(mockJsonResp)
-        const resp = await db.insert(UserAnswer).values({
+        if(existingRecord){
+          
+          await db.update(UserAnswer).set({
+            userAns: userAnswer[activeQuestionIndex],
+            feedback: JsonFeedBackResp?.feedback,
+            rating: JsonFeedBackResp?.rating,
+            createdAt: moment().format("MM-DD-YYYY")
+          })
+          .where(
+            and(
+              eq(UserAnswer.mockIdRef, interviewData?.mockId),
+              eq(UserAnswer.question, mockInterviewQuestion[activeQuestionIndex]?.question),
+              eq(UserAnswer.userEmail, user?.primaryEmailAddress.emailAddress)
+            )
+          );
+          toast('Answer Updated Successfully');
+        }
+        else {
+          
+          await db.insert(UserAnswer).values({
           mockIdRef:interviewData?.mockId,
           question:mockInterviewQuestion[activeQuestionIndex]?.question,
           correctAns:mockInterviewQuestion[activeQuestionIndex]?.answer,
@@ -114,11 +154,9 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
           userEmail:user?.primaryEmailAddress.emailAddress,
           createdAt: moment().format('DD-MM-YYYY')
         })
-
-        if(resp){
-          toast('User Answer Recorded Sucessfully')
-          setResults([])
-        }
+        toast('User Answer Recorded Sucessfully')
+      }
+        setResults([])
         setLoading(false)
       }
 
@@ -137,17 +175,22 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
             }}/>
 
         </div>
-        <Button disabled={loading} varaint='outline' className="my-6"
+        <div className="ml-10 justify-center my-6">
+        <Button disabled={loading} varaint='outline' 
         onClick={saveUserAnswer}
         >
             {isRecording?
             <h2 className='text-red-700 flex gap-2'>
                 <Mic/> Stop Recording
             </h2>
-            :
-                'Record Answer'
-            }
-            </Button>
+            : "Record Answer"}
+          </Button>
+                
+          {userAnswer[activeQuestionIndex]?.length> 0 &&(
+            <Button varaint = 'outline' onClick={resetRecording}className='ml-4 bg-red-500 text-white'>
+              Clear Answer
+            </Button>)}
+            </div>
             
     </div>
   )
