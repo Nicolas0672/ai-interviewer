@@ -55,12 +55,15 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
     }, [activeQuestionIndex]);
 
       useEffect(() =>{
-        if(!isRecording&&userAnswer[activeQuestionIndex]?.length>10){
-          if(userAnswer[activeQuestionIndex] !== prevAnsRef.current){
-            UpdateUserAnswerInDb()
+        if(!isRecording){
+          setTimeout(() => {
+            if(userAnswer[activeQuestionIndex]?.length>10&& userAnswer[activeQuestionIndex] !== prevAnsRef.current){
+              UpdateUserAnswerInDb()
+              prevAnsRef.current = userAnswer[activeQuestionIndex];
+            }
+          }, 500)
           }
-        }
-      }, [userAnswer[activeQuestionIndex]])
+      }, [userAnswer[activeQuestionIndex], isRecording])
 
       const saveUserAnswer = async () =>{
        
@@ -102,14 +105,17 @@ function RecordAnswerSection({interviewData,setUserAnswer, userAnswer, activeQue
           1. A rating (integer from 1 to 10) assessing the quality of the answer.
           2. A brief constructive feedback message in **one or two sentences**.
 
-          **Output MUST be in this exact JSON format (no extra text before or after JSON):**
+          **You MUST output ONLY valid JSON.**
+          **Do NOT include explanations or extra text.**
+          **If you cannot generate valid JSON, return "{}".**
+
+          **Output MUST be in this exact JSON format:**
           \`\`\`json
           {
             "rating": <integer from 1 to 10>,
             "feedback": "<brief constructive feedback>"
           }
           \`\`\`
-          Do NOT include any explanations outside of this JSON format.
           `;
         const result = await chatSession.sendMessage(feedbackPrompt)
 

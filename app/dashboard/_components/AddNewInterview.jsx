@@ -41,8 +41,32 @@ function AddNewInterview() {
     const onSubmit=async(e)=>{
         setLoading(true)
         e.preventDefault()
-        const InputPrompt = "Job Position: "+jobPosition+", Job Description: "+jobDes+", Years of Experience: "+jobExperience+" , Depends on Job Position, Job description & Years of Experience give us "+process.env.NEXT_PUBLIC_INTERVIEW_QUESTION_COUNT+" interview question along with answer in JSON format. Give question and answered as field in JSON"
+        const InputPrompt = `
+                Generate ${process.env.NEXT_PUBLIC_INTERVIEW_QUESTION_COUNT || 5} interview questions based on the following details:
+
+                - **Job Position**: ${jobPosition}
+                - **Job Description**: ${jobDes}
+                - **Years of Experience**: ${jobExperience}
+
+                Return **ONLY** a JSON array in the following format (nothing before or after):
+
+                \`\`\`json
+                [
+                {
+                    "question": "<interview question>",
+                    "answer": "<ideal answer>"
+                },
+                {
+                    "question": "<interview question>",
+                    "answer": "<ideal answer>"
+                }
+                ]
+                \`\`\`
+
+                Ensure valid, parseable JSON. Do NOT include explanations, markdown, or extra text.
+                `;
         const result = await chatSession.sendMessage(InputPrompt)
+        
         const MockJsonResp = (result.response.text()).replace('```json', '').replace('```', '')
         setJsonResponse(MockJsonResp)
         if(MockJsonResp){
