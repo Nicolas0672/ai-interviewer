@@ -29,7 +29,7 @@ function StartInterview() {
             const cleanedJsonResp = result[0].jsonMockResp.trim()
             .replace(/^```json/, '') // Remove leading ```json
             .replace(/```$/, '');    // Remove trailing ```
-            console.log(cleanedJsonResp)
+            
             // Attempt to parse the JSON
             const jsonMockResp = JSON.parse(cleanedJsonResp);
 
