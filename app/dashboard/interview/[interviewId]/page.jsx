@@ -36,9 +36,7 @@ function Interview() {
             </div>
             <div className='p-5 border rounded-lg border-yellow-300 bg-yellow-100'>
                 <h2 className='flex gap-2 items-center text-yellow-400'><Lightbulb/><strong>Information</strong></h2>
-                <h2 className='mt-3 text-yellow-500'>Enable Video Web Cam and Microphone to Start your AI Generated Mock
-                    Interview. It has 5 questions and based on your answers,
-                    a report will be given. <strong>NOTE:</strong> We will never record your video. Web Cam can be disabled at any time.
+                <h2 className='mt-3 text-yellow-500'>Enable your webcam and microphone to start your AI-generated mock interview. The session includes five questions, and you'll receive a personalized report based on your answers. <strong>NOTE:</strong> Your information is kept secure, and you can disable the webcam at any time.
                 </h2>
             </div>
         </div>
@@ -49,7 +47,8 @@ function Interview() {
             mirrored={true}
             style={{
                 height:300,
-                width:300
+                width:'100%',
+                zIndex:10,
             }}/> :
             <>
             <WebcamIcon className='h-72 w-full my-5 p-20 bg-secondary rounded-lg border'/>
